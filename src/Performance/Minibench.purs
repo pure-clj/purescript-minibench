@@ -21,20 +21,16 @@ import Effect.Ref as Ref
 import Effect.Uncurried (EffectFn1, runEffectFn1)
 import Global (infinity)
 import Math (max, min, sqrt)
-import Partial.Unsafe (unsafeCrashWith)
 
--- | A wrapper around the Node `process.hrtime()` function.
-foreign import hrTime :: EffectFn1 (Array Int) (Array Int)
+-- | A wrapper around the Java `System.nanoTime()` function which also subtract
+-- | the time given from now.
+foreign import hrTime :: EffectFn1 Number Number
 
 -- | Force garbage collection.
 -- | Requires node to be run with the --force-gc flag.
 foreign import gc :: Effect Unit
 
 foreign import toFixed :: Number -> String
-
-fromHrTime :: Array Int -> Number
-fromHrTime [s, ns] = toNumber s * 1.0e9 + toNumber ns
-fromHrTime _ = unsafeCrashWith "fromHrTime: unexpected result from process.hrtime()"
 
 withUnits :: Number -> String
 withUnits t
@@ -80,9 +76,9 @@ benchWith' n f = do
   maxRef <- Ref.new 0.0
   gc
   forE 0 n \_ -> do
-    t1 <- runEffectFn1 hrTime [0, 0]
+    t1 <- runEffectFn1 hrTime 0.0
     t2 <- const (runEffectFn1 hrTime t1) (f unit)
-    let ns     = fromHrTime t2
+    let ns     = t2
         square = ns * ns
     _ <- Ref.modify (_ + ns) sumRef
     _ <- Ref.modify (_ + square) sum2Ref

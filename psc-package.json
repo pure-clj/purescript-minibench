@@ -1,0 +1,15 @@
+{
+    "name": "purescript-minibench",
+    "set": "master",
+    "source": "https://github.com/pure-clj/package-sets.git",
+    "depends": [
+        "console",
+        "effect",
+        "globals",
+        "integers",
+        "math",
+        "partial",
+        "prelude",
+        "refs"
+    ]
+}
